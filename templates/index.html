@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <title>Homework #3: D3 Linking - CSE 578 - Fall 2023</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="static/rchand44.js"></script>
+        <style>
+            .myContainer {
+                margin:auto;
+                width:1610px;
+            }
+            #control_panel {
+                width: 1610px;
+                height:100px;
+                padding:10px;
+            }
+            #beeswarm {
+                width: 1610px;
+                height: 800px;
+                border: 2px solid #D3D3D3;
+                border-radius: 3px;
+                padding:10px;
+            }
+            div.tooltip {
+            position: absolute;
+            text-align: center;
+            width: 150px;
+            height: 60px;
+            padding: 2px;
+            font: 12px sans-serif;
+            background: white;
+            border: 2px solid black;
+            border-radius: 8px;
+            }
+            .multiselect {
+              width: 200px;
+            }
+
+            .selectBox {
+              position: relative;
+            }
+
+            .selectBox select {
+              width: 100%;
+              font-weight: bold;
+            }
+
+            .overSelect {
+              position: absolute;
+              left: 0;
+              right: 0;
+              top: 0;
+              bottom: 0;
+            }
+
+            #checkboxes {
+              position: relative;
+            }
+            #checkboxes {
+              display: none;
+              border: 1px #dadada solid;
+            }
+
+            #checkboxes label {
+              display: block;
+              background: #D3D3D3;
+            }
+
+            #checkboxes label:hover {
+              background-color: #1e90ff;
+            }
+        </style>
+</head>
+<body>
+<div class="myContainer">
+    <h1 class="text-center">Homework #3: D3 Linking</h1>
+    <h3 class="text-center">Rakshith Chandrashekar - rakshithc1516@gmail.com</h3>
+    <hr>
+        <div id="control_panel" class="border border-dark rounded bg-light shadow-sm">
+            Control Panel
+            <div class="row no-gutters" style="padding-top: 10px;">
+                <div class="col-1"></div>
+                <div class="col-md-auto">X-axis :</div>
+                <div class="col-2">
+                    <select id="xAxis" style="width: 100%">
+                        <option value="Data.Health.Birth Rate">Birth Rate</option>
+                        <option value="Data.Health.Death Rate">Death Rate</option>
+                        <option value="Data.Health.Fertility Rate">Fertility Rate</option>
+                        <option value="Data.Health.Life Expectancy at Birth, Total">Life Expectancy at Birth, Total</option>
+                        <option value="Data.Health.Population Growth">Population Growth</option>
+                        <option value="Data.Health.Total Population">Total Population</option>
+                        <option value="Data.Infrastructure.Mobile Cellular Subscriptions per 100 People">Mobile Cellular Subscriptions per 100 people</option>
+                        <option value="Data.Infrastructure.Telephone Lines per 100 People">Telephone Lines per 100 people</option>
+                        <option value="Data.Rural Development.Agricultural Land Percent">Agricultural Land Percent</option>
+                        <option value="Data.Rural Development.Surface Area">Rural Surface Area</option>
+                        <option value="Data.Urban Development.Urban Population Percent">Urban Population Percent</option>
+                        <option value="Data.Urban Development.Population Density">Urban Population Density</option>
+                    </select>
+                </div>
+                <div class="col-md-auto">Size :</div>
+                <div class="col-2">
+                    <select id="circleSize" style="width: 100%">
+                        <option value="Data.Health.Birth Rate">Birth Rate</option>
+                        <option value="Data.Health.Death Rate">Death Rate</option>
+                        <option value="Data.Health.Fertility Rate">Fertility Rate</option>
+                        <option value="Data.Health.Life Expectancy at Birth, Total">Life Expectancy at Birth, Total</option>
+                        <option value="Data.Health.Population Growth">Population Growth</option>
+                        <option value="Data.Health.Total Population">Total Population</option>
+                        <option value="Data.Infrastructure.Mobile Cellular Subscriptions per 100 People">Mobile Cellular Subscriptions per 100 people</option>
+                        <option value="Data.Infrastructure.Telephone Lines per 100 People">Telephone Lines per 100 people</option>
+                        <option value="Data.Rural Development.Agricultural Land Percent">Agricultural Land Percent</option>
+                        <option value="Data.Rural Development.Surface Area">Rural Surface Area</option>
+                        <option value="Data.Urban Development.Urban Population Percent">Urban Population Percent</option>
+                        <option value="Data.Urban Development.Population Density">Urban Population Density</option>
+                    </select>
+                </div>
+                <div class="col-md-auto">Regions :</div>
+                <div class="multiselect">
+                    <div class="selectBox" onclick="showCheckboxes()">
+                        <select>
+                            <option>Select an option</option>
+                        </select>
+                        <div class="overSelect"></div>
+                    </div>
+                    <div id="checkboxes">
+                        <button id="btn">Check / Uncheck All</button>
+                        <script>
+                        function check(checked = true) {
+                            const checkboxes = document.querySelectorAll('input[class="regionCheckbox"]');
+                            checkboxes.forEach((checkbox) => {
+                                bankRegion.add(checkbox.value);
+                                checkbox.checked = checked;
+                            });
+                        }
+
+                        function checkAll() {
+                            bankRegionOld = new Set(bankRegion);
+                            check();
+                            addedRegion = 'All';
+                            animateXaxis(animateAddCounries);
+                            this.onclick = uncheckAll;
+                        }
+
+                        function uncheckAll() {
+                            check(false);
+                            bankRegion.clear();
+                            deletedRegion = 'All';
+                            animateXaxis(animateRemoveCounries);
+                            this.onclick = checkAll;
+                        }
+
+                        const btn = document.querySelector('#btn');
+                        btn.onclick = uncheckAll;
+                    </script>
+                        <hr style="height:2px;margin:0;">
+                        <label for="South Asia">
+                            <input class="regionCheckbox" type="checkbox" id="South Asia" value="South Asia" checked/>South Asia</label>
+                        <label for="Europe & Central Asia">
+                            <input class="regionCheckbox" type="checkbox" id="Europe & Central Asia" value="Europe & Central Asia" checked/>Europe & Central Asia</label>
+                        <label for="Middle East & North Africa">
+                            <input class="regionCheckbox" type="checkbox" id="Middle East & North Africa" value="Middle East & North Africa" checked/>Middle East & North Africa</label>
+                        <label for="Sub-Saharan Africa">
+                            <input class="regionCheckbox" type="checkbox" id="Sub-Saharan Africa" value="Sub-Saharan Africa" checked/>Sub-Saharan Africa</label>
+                        <label for="Latin America & Caribbean">
+                            <input class="regionCheckbox" type="checkbox" id="Latin America & Caribbean" value="Latin America & Caribbean" checked/>Latin America & Caribbean</label>
+                        <label for="East Asia & Pacific">
+                            <input class="regionCheckbox" type="checkbox" id="East Asia & Pacific" value="East Asia & Pacific" checked/>East Asia & Pacific</label>
+                        <label for="North America">
+                            <input class="regionCheckbox" type="checkbox" id="North America" value="North America" checked/>North America</label>
+                    </div>
+                </div>
+                <div class="col-md-auto">Year :</div>
+                <div class="col-md-auto">
+                    <input id="selectYear" type="number" style="height:23px; width:80px" value="1980" min="1980" max="2013">
+                </div>
+                <div class="col-md-auto">
+                    <input id="playYear" type="button" onclick="recursiveCall=0;playYear();" value="Play" style="height:23px; width:60px; line-height: 0px;">
+                </div>
+            </div>
+        </div>
+        <div>
+            <svg id="beeswarm"></svg>
+        </div>
+</div>&nbsp;&nbsp;&nbsp;
+</body>
+</html>
